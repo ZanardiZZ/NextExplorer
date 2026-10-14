@@ -107,9 +107,36 @@ generation or version action.
 - [ ] Run a real authenticated OpenWebUI -> Explorer -> ONLYOFFICE test before
       marking this PR ready for review.
 
+## End-state: structured document editing API
+
+The long-term target is an API layer similar in spirit to Google Docs/Slides:
+read the current document state, submit validated semantic operations in an
+atomic batch, and reject stale writes instead of silently overwriting user work.
+
+The NextExplorer adapter should eventually expose or implement:
+
+- a stable logical document ID;
+- current document/slide state and opaque revision ID;
+- structured batch edits for text, slides, tables, shapes, and images;
+- atomic application of a batch;
+- optimistic `requiredRevisionId` checks and explicit conflict responses;
+- idempotency keys for retried model operations;
+- revision/history metadata;
+- live-session status and force-save;
+- collaborator-change and save events.
+
+The model must return validated semantic operations, never arbitrary JavaScript or
+an opaque replacement file. The ONLYOFFICE integration may apply those operations
+through a controlled plugin/API in the editor session already open to the user.
+
+For PPTX, the operation surface should be presentation-aware, analogous to the
+Google Slides `presentations.batchUpdate` model, while remaining an adapter that
+can support other editors in the future.
+
 ## Non-goals
 
 - Replacing NextExplorer authentication.
-- Publishing a public editor link without explicit sharing policy.
+- Publishing public editor links without explicit sharing policy.
 - Storing OpenWebUI or ONLYOFFICE secrets in the frontend.
-- Guessing the target document from the newest file in a folder.
+- Guessing the target document from the newest file in a directory.
+
